@@ -6,7 +6,7 @@ let
   magenta = "magenta"
   yellow = "yellow"
   cyan = "cyan"
-  prompt = "> "
+  prompt = "› "
   nl = "\n"
   dirty = color("×", "red")
   clean = color("•", "green")
