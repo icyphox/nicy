@@ -9,7 +9,7 @@ Add this to your `~/.zshrc`
 
 ```zsh
 _nicy_prompt() {
-	PROMPT=$("/home/icy/.nimble/bin/nicy")
+	PROMPT=$("/path/to/nicy")
 }
 precmd_functions+=_nicy_prompt
 _nicy_prompt
