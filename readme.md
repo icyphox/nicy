@@ -1,6 +1,8 @@
 # nicy
 > A nice and icy ZSH prompt in Nim
 
+![scrot](https://x.ph0x.me/FRejk.png)
+
 ## Installation
 `nimble install https://github.com/icyphox/nicy`
 
