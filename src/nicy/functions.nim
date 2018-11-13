@@ -1,0 +1,109 @@
+import 
+  os,
+  osproc,
+  strformat,
+  tables,
+  strutils,
+  lenientops,
+  terminal
+
+proc zeroWidth*(s: string): string =
+  return fmt"%{{{s}%}}"
+
+proc foreground*(s, color: string): string =
+  let colors = {
+    "black":"\x1b[30m",
+    "red": "\x1b[31m",
+    "green": "\x1b[32m",
+    "yellow": "\x1b[33m",
+    "blue": "\x1b[34m",
+    "magenta": "\x1b[35m",
+    "cyan": "\x1b[36m",
+    "white": "\x1b[37m",
+  }.toTable
+  return fmt"{zeroWidth(colors[color])}{s}"
+
+proc background*(s, color: string): string =
+  let colors = {
+    "black":"\x1b[40m",
+    "red": "\x1b[41m",
+    "green": "\x1b[42m",
+    "yellow": "\x1b[43m",
+    "blue": "\x1b[44m",
+    "magenta": "\x1b[45m",
+    "cyan": "\x1b[46m",
+    "white": "\x1b[47m",
+  }.toTable
+  return fmt"{zeroWidth(colors[color])}{s}"
+
+proc bold*(s: string): string =
+  let b = "\x1b[1m"
+  return fmt"{zeroWidth(b)}{s}"
+
+proc underline*(s: string): string =
+  let u = "\x1b[4m"
+  return fmt"{zeroWidth(u)}{s}"
+
+proc reverse*(s: string): string =
+  let rev = "\x1b[7m"
+  return fmt"{zeroWidth(rev)}{s}"
+
+proc reset*(s: string): string =
+  let res = "\x1b[0m"
+  return fmt"{s}{zeroWidth(res)}"
+
+proc color*(s: string, fg: string = "", bg: string = "",
+  b: bool = false, u: bool = false, r = false): string =
+  result = s
+  if s.len == 0:
+    return s
+  if fg.len != 0:
+    result = foreground(result, fg)
+  if bg.len != 0:
+    result = background(result, bg)
+  if b:
+    result = bold(result)
+  if u:
+    result = underline(result)
+  if r:
+    result = reverse(result)
+  result = reset(result)
+
+proc horizontalRule*(c: char = '-'): string =
+  let width = terminalWidth()
+  for i in countup(1, width):
+    result &= c
+  result &= zeroWidth("\n")
+
+proc tilde*(path: string): string =
+  let home = getHomeDir()
+  if path.startsWith(home):
+    result = path.replace(home, "~/")
+  else:
+    result = path
+
+proc getCwd*(): string =
+  try:
+    result = getCurrentDir() & " "
+  except OSError:
+    result = "[not found]"
+
+proc virtualenv*(): string =
+  let env = getEnv("VIRTUAL_ENV")
+  result = fmt"({extractFilename(env)}) "
+ 
+proc gitBranch*(): string =
+  let gitDir = getCurrentDir() / ".git"
+  if gitDir.dirExists():
+    let 
+      o = execProcess("git status")
+      firstLine = o.split("\n")[0].split(" ")
+    result = firstLine[firstLine.len - 1] & " "
+  else:
+    result = ""
+
+proc user*(): string =
+  result = getEnv("USER")
+
+proc host*(): string =
+  result = getEnv("HOST")
