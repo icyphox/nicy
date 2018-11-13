@@ -11,7 +11,7 @@ proc zeroWidth*(s: string): string =
   return fmt"%{{{s}%}}"
 
 proc foreground*(s, color: string): string =
-  let colors = {
+  const colors = {
     "black":"\x1b[30m",
     "red": "\x1b[31m",
     "green": "\x1b[32m",
@@ -24,7 +24,7 @@ proc foreground*(s, color: string): string =
   return fmt"{zeroWidth(colors[color])}{s}"
 
 proc background*(s, color: string): string =
-  let colors = {
+  const colors = {
     "black":"\x1b[40m",
     "red": "\x1b[41m",
     "green": "\x1b[42m",
@@ -37,19 +37,19 @@ proc background*(s, color: string): string =
   return fmt"{zeroWidth(colors[color])}{s}"
 
 proc bold*(s: string): string =
-  let b = "\x1b[1m"
+  const b = "\x1b[1m"
   return fmt"{zeroWidth(b)}{s}"
 
 proc underline*(s: string): string =
-  let u = "\x1b[4m"
+  const u = "\x1b[4m"
   return fmt"{zeroWidth(u)}{s}"
 
 proc reverse*(s: string): string =
-  let rev = "\x1b[7m"
+  const rev = "\x1b[7m"
   return fmt"{zeroWidth(rev)}{s}"
 
 proc reset*(s: string): string =
-  let res = "\x1b[0m"
+  const res = "\x1b[0m"
   return fmt"{s}{zeroWidth(res)}"
 
 proc color*(s: string, fg: string = "", bg: string = "",
