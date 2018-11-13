@@ -8,4 +8,4 @@ let
   cyan = "cyan"
   prompt = "> "
   nl = "\n"
-echo fmt"{virtualenv()}{color(tilde(getCwd()), cyan)}{color(gitBranch(), yellow)}{nl}{color(prompt, magenta)}"
+echo fmt"{nl}{virtualenv()}{color(tilde(getCwd()), cyan)}{color(gitBranch(), yellow)}{nl}{color(prompt, magenta)}"
