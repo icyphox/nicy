@@ -91,6 +91,8 @@ proc getCwd*(): string =
 proc virtualenv*(): string =
   let env = getEnv("VIRTUAL_ENV")
   result = fmt"({extractFilename(env)}) "
+  if env.len == 0:
+    result = ""
  
 proc gitBranch*(): string =
   let gitDir = getCurrentDir() / ".git"
