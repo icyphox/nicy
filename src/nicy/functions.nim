@@ -104,6 +104,17 @@ proc gitBranch*(): string =
   else:
     result = ""
 
+proc gitStatus*(dirty, clean: string): string =
+  let gitDir = getCurrentDir() / ".git"
+  if gitDir.dirExists():
+    let o = execProcess("git status --porcelain")
+    if o.len != 0:
+      result = fmt"{dirty}"
+    else:
+      result = fmt"{clean}"
+  else:
+    result = ""
+
 proc user*(): string =
   result = getEnv("USER")
 

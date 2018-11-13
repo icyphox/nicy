@@ -8,4 +8,8 @@ let
   cyan = "cyan"
   prompt = "> "
   nl = "\n"
-echo fmt"{nl}{virtualenv()}{color(tilde(getCwd()), cyan)}{color(gitBranch(), yellow)}{nl}{color(prompt, magenta)}"
+  dirty = color("×", "red")
+  clean = color("•", "green")
+
+# the prompt
+echo fmt"{nl}{virtualenv()}{color(tilde(getCwd()), cyan)}{color(gitBranch(), yellow)}{gitStatus(dirty, clean)}{nl}{color(prompt, magenta)}"
