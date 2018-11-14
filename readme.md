@@ -26,6 +26,8 @@ Make sure you disable all other themes.
 ## Configuration
 At the moment, you’re going to have to modify `src/nicy.nim` to build your prompt using the procs listed below.
 
+### API
+
 **`zeroWidth(s: string): string`**  
 Returns the given string wrapped in zsh zero-width codes. Useful for prompt alignment and cursor positioning.  
 All procs below return strings wrapped by this.
@@ -77,6 +79,21 @@ Returns the current username.
 
 **`host(): string`**  
 Returns the current hostname.
+
+### Examples
+
+```nim
+import nicy
+import strformat
+
+const
+  user = color(user(), "green")
+  host = color(host(), "red")
+  prompt = color("$ ", "cyan")
+  at = color("@", "yellow")
+  # the prompt
+  echo fmt"{user}{at}{host}{prompt}"
+```
 
 ## License
 MIT © Anirudh Oppiliappan

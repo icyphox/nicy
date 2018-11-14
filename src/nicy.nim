@@ -2,6 +2,9 @@ import
   nicy/functions,
   strformat
 
+export
+  functions
+
 let
   magenta = "magenta"
   yellow = "yellow"
