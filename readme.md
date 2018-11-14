@@ -1,4 +1,7 @@
-# nicy
+<h1 align="center">                                                              
+    <img src="https://x.ph0x.me/5DyAD.png" width="280">                            
+</h1>                                                                                   
+
 > A nice and icy ZSH prompt in Nim
 
 ![scrot](https://x.ph0x.me/SltdI.png)
