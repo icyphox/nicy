@@ -95,19 +95,16 @@ proc virtualenv*(): string =
     result = ""
  
 proc gitBranch*(): string =
-  let gitDir = getCurrentDir() / ".git"
-  if gitDir.dirExists():
-    let 
-      o = execProcess("git status")
-      firstLine = o.split("\n")[0].split(" ")
+  let (o, err) = execCmdEx("git status")
+  if err == 0:
+    let firstLine = o.split("\n")[0].split(" ")
     result = firstLine[firstLine.len - 1] & " "
   else:
     result = ""
 
 proc gitStatus*(dirty, clean: string): string =
-  let gitDir = getCurrentDir() / ".git"
-  if gitDir.dirExists():
-    let o = execProcess("git status --porcelain")
+  let (o, err) = execCmdEx("git status --porcelain")
+  if err == 0:
     if o.len != 0:
       result = fmt"{dirty}"
     else:
