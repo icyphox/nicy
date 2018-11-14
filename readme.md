@@ -8,7 +8,7 @@
 
 ## Installation
 ```console
-nimble install https://github.com/icyphox/nicy
+$ nimble install https://github.com/icyphox/nicy
 ```
 
 ## Usage
