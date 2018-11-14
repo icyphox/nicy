@@ -26,6 +26,11 @@ Make sure you disable all other themes.
 ## Configuration
 At the moment, you’re going to have to modify `src/nicy.nim` to build your prompt using the procs listed below.
 
+## Building your own prompt
+Alternatively, you can just as easily write your own prompt in Nim using `nicy`’s built in API. Refer to the [Examples](#Examples) section.
+
+Once you’re done, compile it and add a similar function to your `.zshrc`, as above.
+
 ### API
 
 **`zeroWidth(s: string): string`**  
@@ -63,7 +68,7 @@ Returns a string of characters `c`, having the length of the current terminal wi
 If `path` starts with `/home/user`, it is replaced by a `~/`.
 
 **`getCwd(): string`**  
-Returns the full path of the current working directory, or returns the string `[not found]` if current path doesn't exist. (eg: `rm -rf ../curpath`)
+Returns the full path of the current working directory, or returns the string `[not found]` if current path doesn’t exist. (eg: `rm -rf ../curpath`)
 
 **`virtualenv(): string`**  
 Returns the current virtualenv name if in one.
