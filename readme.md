@@ -38,7 +38,7 @@ Once you’re done, compile it and add a similar function to your `.zshrc` as ab
 
 import nicy, strformat
 
-const
+let
   user = color(user(), "green")
   host = color(host(), "red")
   prompt = color("$ ", "cyan")
