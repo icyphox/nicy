@@ -97,7 +97,7 @@ Adds an underline to the given string.
 Swaps the foreground/background colors for the given string.
 
 **`reset(s: string): string`**  
-Resets all attributes. Useful to disable all styling.
+Resets all attributes. Useful for disabling all styling.
 
 **`color(s: string, fg: string = "", bg: string = "",  b: bool = false, u: bool = false, r = false): string`**  
 Convenience proc that sets all attributes to a given string.  
