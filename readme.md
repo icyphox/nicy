@@ -25,7 +25,7 @@ _nicy_prompt
 ```
 Make sure you disable all other themes.
 
-### Configuration
+## Configuration
 If you want to configure `nicy` as it is, you’ll have to edit the `src/nicy.nim` file and recompile. Messy, I know.
 
 ### Build your own prompt
