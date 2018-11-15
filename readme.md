@@ -24,10 +24,10 @@ _nicy_prompt
 Make sure you disable all other themes.
 
 ### Configuration
-If you want to configure `nicy` just as it is, you’ll have to edit `src/nicy.nim` file. 
+If you want to configure `nicy` as it is, you’ll have to edit the `src/nicy.nim` file and recompile. Messy, I know.
 
 ### Build your own prompt
-Alternatively, you can just as easily write your own prompt in Nim using `nicy`’s built in API. Refer to the [Examples](#Examples) section for some insight.
+Alternatively, you can just as easily write your own prompt in Nim using `nicy`’s built-in API. Refer to the [Examples](#Examples) section for some insight.
 
 Once you’re done, compile it and add a similar function to your `.zshrc` as above, replacing `PROMPT` with the path to your own binary.
 
