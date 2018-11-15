@@ -8,10 +8,10 @@
 
 ## Installation
 ```console
-$ nimble install https://github.com/icyphox/nicy
+$ nimble install nicy
 ```
 
-## Usage
+## Quick start
 Add this to your `~/.zshrc`. If you installed via `nimble`, set `PROMPT` to `$(~/.nimble/bin/nicy)`.
 
 ```zsh
@@ -23,13 +23,43 @@ _nicy_prompt
 ```
 Make sure you disable all other themes.
 
-## Configuration
-At the moment, you’re going to have to modify `src/nicy.nim` to build your prompt using the procs listed below.
+### Configuration
+If you want to configure `nicy` just as it is, you’ll have to edit `src/nicy.nim` file. 
 
-## Building your own prompt
-Alternatively, you can just as easily write your own prompt in Nim using `nicy`’s built in API. Refer to the [Examples](#Examples) section.
+### Build your own prompt
+Alternatively, you can just as easily write your own prompt in Nim using `nicy`’s built in API. Refer to the [Examples](#Examples) section for some insight.
 
-Once you’re done, compile it and add a similar function to your `.zshrc`, as above.
+Once you’re done, compile it and add a similar function to your `.zshrc` as above, replacing `PROMPT` with the path to your own binary.
+
+### Examples
+
+```nim
+# ‘user@host $’ prompt
+
+import nicy
+import strformat
+
+const
+  user = color(user(), "green")
+  host = color(host(), "red")
+  prompt = color("$ ", "cyan")
+  at = color("@", "yellow")
+
+echo fmt"{user}{at}{host} {prompt}"
+```
+
+```nim
+# fish’s default prompt '~>'
+
+import nicy
+import strformat
+
+const
+  prompt = color("> ", "green")
+  tilde = tilde(getCwd())
+
+echo fmt"{tilde}{prompt}
+```
 
 ### API
 
@@ -85,20 +115,8 @@ Returns the current username.
 **`host(): string`**  
 Returns the current hostname.
 
-### Examples
-
-```nim
-import nicy
-import strformat
-
-const
-  user = color(user(), "green")
-  host = color(host(), "red")
-  prompt = color("$ ", "cyan")
-  at = color("@", "yellow")
-  # the prompt
-  echo fmt"{user}{at}{host}{prompt}"
-```
+## Contributing
+Bad code? New feature in mind? Open an issue. Better still, learn [Nim](https://nim-lang.org/documentation.html) and shoot a PR :sparkles:
 
 ## License
 MIT © Anirudh Oppiliappan
