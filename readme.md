@@ -4,6 +4,8 @@
 
 > A nice and icy ZSH prompt in Nim
 
+[![Build Status](https://travis-ci.org/icyphox/nicy.svg?branch=master)](https://travis-ci.org/icyphox/nicy)
+
 ![scrot](https://x.ph0x.me/SltdI.png)
 
 ## Installation
