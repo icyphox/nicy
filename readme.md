@@ -8,10 +8,22 @@
 
 ![scrot](https://x.ph0x.me/SltdI.png)
 
+### Why?
+I’ve always wanted to minimize my reliance on frameworks like [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh), so I figured, why not write my own ZSH prompt in my new favourite language? Turned out to be a really fun exercise.
+
+### Highlights
+- Written in Nim 👑
+- Fast (in theory, since Nim compiles to C)
+- Pretty defaults.
+- Plugin-like system for prompt customization, in case you didn’t like the pretty defaults.
+- Fun, I guess.
+
 ## Installation
 ```console
 $ nimble install nicy
 ```
+
+Don’t know what that is? New to Nim? Check out the Nim [docs](https://nim-lang.org/documentation.html). `nimble` is packaged with Nim by default.  
 
 ## Quick start
 Add this to your `~/.zshrc`. If you installed via `nimble`, set `PROMPT` to `$(~/.nimble/bin/nicy)`.
