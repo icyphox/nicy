@@ -5,14 +5,15 @@ import
 export
   functions
 
-let
-  magenta = "magenta"
-  yellow = "yellow"
-  cyan = "cyan"
-  prompt = "› "
-  nl = "\n"
-  dirty = color("×", "red")
-  clean = color("•", "green")
+when isMainModule:
+  let
+    prompt = color("› ", "magenta")
+    nl = "\n"
+    gitBranch = color(gitBranch(), "yellow")
+    cwd = color(tilde(getCwd()), "cyan")
+    dirty = color("×", "red")
+    clean = color("•", "green")
+  let git = gitBranch & gitStatus(dirty, clean)
 
-# the prompt
-echo fmt"{nl}{virtualenv()}{color(tilde(getCwd()), cyan)}{color(gitBranch(), yellow)}{gitStatus(dirty, clean)}{nl}{color(prompt, magenta)}"
+  # the prompt
+  echo fmt"{nl}{virtualenv()}{cwd}{git}{nl}{prompt}"
