@@ -1,5 +1,5 @@
 import 
-  nicy/functions,
+  nicypkg/functions,
   strformat
 
 export
