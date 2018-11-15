@@ -36,8 +36,7 @@ Once you’re done, compile it and add a similar function to your `.zshrc` as ab
 ```nim
 # ‘user@host $’ prompt
 
-import nicy
-import strformat
+import nicy, strformat
 
 const
   user = color(user(), "green")
@@ -51,14 +50,27 @@ echo fmt"{user}{at}{host} {prompt}"
 ```nim
 # fish’s default prompt '~>'
 
-import nicy
-import strformat
+import nicy, strformat
 
-const
+let
   prompt = color("> ", "green")
   tilde = tilde(getCwd())
 
-echo fmt"{tilde}{prompt}
+echo fmt"{tilde}{prompt}"
+```
+
+```nim
+# pure by @sindresorhus (kinda)
+
+import nicy, strformat
+
+let
+  prompt = color("❯ ", "magenta")
+  tilde = color(tilde(getCwd()), "cyan")
+  git = color(gitBranch() & gitStatus("*", ""), "black")
+  nl = "\n"
+
+echo fmt"{tilde}{git}{nl}{prompt}"
 ```
 
 ### API
