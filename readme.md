@@ -107,6 +107,9 @@ Makes the given string bold.
 **`underline(s: string): string`**  
 Adds an underline to the given string.
 
+**`italics(s: string): string`**  
+Italicizes the given text. **May not work on all terminals!**
+
 **`reverse(s: string): string`**  
 Swaps the foreground/background colors for the given string.
 

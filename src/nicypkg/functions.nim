@@ -43,6 +43,10 @@ proc underline*(s: string): string =
   const u = "\x1b[4m"
   return fmt"{zeroWidth(u)}{s}"
 
+proc italics*(s: string): string =
+  const i = "\x1b[3m"
+  return fmt"{zeroWidth(i)}{s}"
+
 proc reverse*(s: string): string =
   const rev = "\x1b[7m"
   return fmt"{zeroWidth(rev)}{s}"
