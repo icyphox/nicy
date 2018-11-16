@@ -4,7 +4,6 @@ import
   strformat,
   tables,
   strutils,
-  lenientops,
   terminal
 
 proc zeroWidth*(s: string): string =
@@ -90,7 +89,7 @@ proc getCwd*(): string =
 
 proc virtualenv*(): string =
   let env = getEnv("VIRTUAL_ENV")
-  result = fmt"({extractFilename(env)}) "
+  result = extractFilename(env)
   if env.len == 0:
     result = ""
  
@@ -106,9 +105,9 @@ proc gitStatus*(dirty, clean: string): string =
   let (o, err) = execCmdEx("git status --porcelain")
   if err == 0:
     if o.len != 0:
-      result = fmt"{dirty}"
+      result = dirty
     else:
-      result = fmt"{clean}"
+      result = clean
   else:
     result = ""
 
@@ -116,4 +115,8 @@ proc user*(): string =
   result = getEnv("USER")
 
 proc host*(): string =
-  result = getEnv("HOST")
+  # result = getEnv("HOST")
+  # FIXME: this doesn't work oddly, will have to revert to the `hostname` command
+ let (o, err) = execCmdEx("hostname")
+ discard err
+ result = o
