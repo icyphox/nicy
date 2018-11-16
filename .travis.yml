@@ -47,7 +47,7 @@ script:
 
 before_deploy:
     - cd "${TRAVIS_BUILD_DIR}"
-    - cp "${PROGNAME}" "${ASSETFILE}"
+    - cp "${BINFILE}" "${ASSETFILE}"
 deploy:
     provider: releases
     api_key: "${GITHUB_OAUTH_TOKEN}"
