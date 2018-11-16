@@ -81,7 +81,7 @@ import nicy, strformat
 let
   prompt = color("❯ ", "magenta")
   tilde = color(tilde(getCwd()), "cyan")
-  git = color(gitBranch() & gitStatus("*", ""), "black")
+  git = color(gitBranch() & gitStatus("*", ""), "red")
   nl = "\n"
 
 echo fmt"{tilde}{git}{nl}{prompt}"
