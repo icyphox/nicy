@@ -121,6 +121,4 @@ proc user*(): string =
 proc host*(): string =
   # result = getEnv("HOST")
   # FIXME: this doesn't work oddly, will have to revert to the `hostname` command
- let (o, err) = execCmdEx("hostname")
- discard err
- result = o
+  result = execProcess("hostname")
