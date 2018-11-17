@@ -4,6 +4,7 @@ import
   strformat,
   tables,
   strutils,
+  utils,
   terminal
 
 proc zeroWidth*(s: string): string =
@@ -79,9 +80,10 @@ proc horizontalRule*(c: char = '-'): string =
   result &= zeroWidth("\n")
 
 proc tilde*(path: string): string =
-  let home = getHomeDir()
+  # borrowed from @jabbalaci
+  let home = getHomeDir().rchop("/")    # without trailing '/'
   if path.startsWith(home):
-    result = path.replace(home, "~/")
+    result = "~" & path.lchop(home)    # replace the first occurrence only
   else:
     result = path
 
