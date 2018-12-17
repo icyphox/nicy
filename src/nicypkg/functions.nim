@@ -95,7 +95,7 @@ proc getCwd*(): string =
 
 proc virtualenv*(): string =
   let env = getEnv("VIRTUAL_ENV")
-  result = extractFilename(env)
+  result = extractFilename(env) & " "
   if env.len == 0:
     result = ""
  
