@@ -1,12 +1,12 @@
 <h1 align="center">                                                              
-    <img src="https://x.ph0x.me/5DyAD.png" width="280">                            
+    <img src="https://x.icyphox.sh/5DyAD.png" width="280">                            
 </h1>
 
 > A nice and icy ZSH prompt in Nim
 
 [![Build Status](https://travis-ci.org/icyphox/nicy.svg?branch=master)](https://travis-ci.org/icyphox/nicy)
 
-![scrot](https://x.ph0x.me/SltdI.png)
+![scrot](https://x.icyphox.sh/SltdI.png)
 
 ### Why?
 I’ve always wanted to minimize my reliance on frameworks like [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh), so I figured, why not write my own ZSH prompt in my new favourite language? Turned out to be a really fun exercise.
