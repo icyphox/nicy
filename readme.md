@@ -29,11 +29,11 @@ Don’t know what that is? New to Nim? Check out the Nim [docs](https://nim-lang
 Add this to your `~/.zshrc`. If you installed via `nimble`, set `PROMPT` to `$(~/.nimble/bin/nicy)`.
 
 ```zsh
+autoinit -Uz add-zsh-hook
 _nicy_prompt() {
 	PROMPT=$("/path/to/nicy")
 }
-precmd_functions+=_nicy_prompt
-_nicy_prompt
+add-zsh-hook precmd _nicy_prompt
 ```
 Make sure you disable all other themes.
 
