@@ -126,6 +126,6 @@ proc host*(): string =
   var s = cstring(newString(size))
   result = $s.gethostname(size)
   
-proc uidsymbol(): string =
-  result = if getuid() == 0: "#"
-           else: "$"
+proc uidsymbol*(root, user: string): string =
+  result = if getuid() == 0: root
+           else: user
