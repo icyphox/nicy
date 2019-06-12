@@ -5,6 +5,7 @@ import
   tables,
   strutils,
   utils,
+  posix,
   terminal
 
 proc zeroWidth*(s: string): string =
@@ -118,9 +119,13 @@ proc gitStatus*(dirty, clean: string): string =
     result = ""
 
 proc user*(): string =
-  result = getEnv("USER")
+  result = $getpwuid(getuid()).pw_name
 
 proc host*(): string =
-  # result = getEnv("HOST")
-  # FIXME: this doesn't work oddly, will have to revert to the `hostname` command
-  result = execProcess("hostname")
+  const size = 64
+  var s = cstring(newString(size))
+  result = $s.gethostname(size)
+  
+proc uidsymbol*(root, user: string): string =
+  result = if getuid() == 0: root
+           else: user
