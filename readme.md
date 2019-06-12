@@ -19,6 +19,9 @@ I’ve always wanted to minimize my reliance on frameworks like [oh-my-zsh](http
 - Fun, I guess.
 
 ## Installation
+**Note**: It’s probably a good idea to uninstall `oh-my-zsh`, or any other plugin framework you’re using
+altogether. It may cause conflicts.
+
 ```console
 $ nimble install nicy
 ```
