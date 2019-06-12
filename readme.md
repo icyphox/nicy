@@ -32,7 +32,7 @@ Don’t know what that is? New to Nim? Check out the Nim [docs](https://nim-lang
 Add this to your `~/.zshrc`. If you installed via `nimble`, set `PROMPT` to `$(~/.nimble/bin/nicy)`.
 
 ```zsh
-autolaod -Uz add-zsh-hook
+autoload -Uz add-zsh-hook
 _nicy_prompt() {
 	PROMPT=$("/path/to/nicy")
 }
