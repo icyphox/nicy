@@ -81,10 +81,10 @@ proc horizontalRule*(c: char = '-'): string =
   result &= zeroWidth("\n")
 
 proc tilde*(path: string): string =
-  # borrowed from @jabbalaci
-  let home = getHomeDir().rchop("/")    # without trailing '/'
+  # donated by @misterbianco
+  let home = getHomeDir()
   if path.startsWith(home):
-    result = "~" & path.lchop(home)    # replace the first occurrence only
+    result = "~/" & path.split(home)[1]
   else:
     result = path
 
