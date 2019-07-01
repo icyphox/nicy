@@ -4,7 +4,6 @@ import
   strformat,
   tables,
   strutils,
-  utils,
   posix,
   terminal
 
