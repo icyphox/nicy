@@ -19,6 +19,9 @@ I’ve always wanted to minimize my reliance on frameworks like [oh-my-zsh](http
 - Fun, I guess.
 
 ## Installation
+**Note**: It’s probably a good idea to uninstall `oh-my-zsh`, or any other plugin framework you’re using
+altogether. It may cause conflicts.
+
 ```console
 $ nimble install nicy
 ```
@@ -29,7 +32,7 @@ Don’t know what that is? New to Nim? Check out the Nim [docs](https://nim-lang
 Add this to your `~/.zshrc`. If you installed via `nimble`, set `PROMPT` to `$(~/.nimble/bin/nicy)`.
 
 ```zsh
-autoinit -Uz add-zsh-hook
+autoload -Uz add-zsh-hook
 _nicy_prompt() {
 	PROMPT=$("/path/to/nicy")
 }
