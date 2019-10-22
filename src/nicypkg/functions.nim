@@ -128,3 +128,9 @@ proc host*(): string =
 proc uidsymbol*(root, user: string): string =
   result = if getuid() == 0: root
            else: user
+
+proc returnCondition*(ok: string, ng: string, delimiter = "."): string =
+  result = fmt"%(?{delimiter}{ok}{delimiter}{ng})"
+
+proc returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string =
+  result = returnCondition(ok = ok(), ng = ng(), delimiter = delimiter)
