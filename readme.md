@@ -90,6 +90,22 @@ let
 echo fmt"{tilde}{git}{nl}{prompt}"
 ```
 
+```nim
+# switching by return code
+
+import nicy, strformat
+
+let
+  prompt = returnCondition(ok = "👍", ng = "👎") & " "
+  tilde = color(tilde(getCwd()), "cyan")
+  git = color(gitBranch() & gitStatus("*", ""), "red")
+  nl = "\n"
+
+echo fmt"{tilde}{git}{nl}{prompt}"
+# ~ master
+# 👍 
+```
+
 ### API
 
 **`zeroWidth(s: string): string`**  
@@ -146,6 +162,14 @@ Returns the current username.
 
 **`host(): string`**  
 Returns the current hostname.
+
+**`returnCondition*(ok: string, ng: string, delimiter = "."): string`**  
+Returns `ok` string or `ng` string.
+if the return code is `0` then `ok` else `ng`.
+
+**`returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string`**  
+Returns result of `ok` proc or `ng` proc.
+if the return code is `0` then this proc calls `ok` proc else this proc calls `ng` proc.
 
 ## Contributing
 Bad code? New feature in mind? Open an issue. Better still, learn [Nim](https://nim-lang.org/documentation.html) and shoot a PR :sparkles:
