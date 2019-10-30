@@ -130,4 +130,4 @@ func returnCondition*(ok: string, ng: string, delimiter = "."): string {.inline.
 template returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string =
   returnCondition(ok = ok(), ng = ng(), delimiter = delimiter)
 
-func echo*(s: cstring) {.importc: "printf", header: "<stdio.h>".} ## Fast pure C echo,uses cstring.
+func echoc*(s: cstring) {.importc: "printf", header: "<stdio.h>".} ## Fast pure C echo,uses cstring.
