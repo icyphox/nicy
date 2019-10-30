@@ -1,4 +1,4 @@
-import
+import 
   os,
   osproc,
   strformat,
@@ -7,7 +7,7 @@ import
   posix,
   terminal
 
-func zeroWidth*(s: string): string {.inline.} =
+proc zeroWidth*(s: string): string =
   return fmt"%{{{s}%}}"
 
 proc foreground*(s, color: string): string =
@@ -36,23 +36,23 @@ proc background*(s, color: string): string =
   }.toTable
   return fmt"{zeroWidth(colors[color])}{s}"
 
-func bold*(s: string): string {.inline.} =
+proc bold*(s: string): string =
   const b = "\x1b[1m"
   return fmt"{zeroWidth(b)}{s}"
 
-func underline*(s: string): string {.inline.} =
+proc underline*(s: string): string =
   const u = "\x1b[4m"
   return fmt"{zeroWidth(u)}{s}"
 
-func italics*(s: string): string {.inline.} =
+proc italics*(s: string): string =
   const i = "\x1b[3m"
   return fmt"{zeroWidth(i)}{s}"
 
-func reverse*(s: string): string {.inline.} =
+proc reverse*(s: string): string =
   const rev = "\x1b[7m"
   return fmt"{zeroWidth(rev)}{s}"
 
-func reset*(s: string): string {.inline.} =
+proc reset*(s: string): string =
   const res = "\x1b[0m"
   return fmt"{s}{zeroWidth(res)}"
 
@@ -74,7 +74,8 @@ proc color*(s: string, fg: string = "", bg: string = "",
   result = reset(result)
 
 proc horizontalRule*(c: char = '-'): string =
-  for _ in 1 || terminalWidth(): # Parallel for loop, unordered iter but faster.
+  let width = terminalWidth()
+  for i in countup(1, width):
     result &= c
   result &= zeroWidth("\n")
 
@@ -86,15 +87,18 @@ proc tilde*(path: string): string =
   else:
     result = path
 
-template getCwd*(): string =
-  try: getCurrentDir() & " " except OSError: "[not found]"
+proc getCwd*(): string =
+  try:
+    result = getCurrentDir() & " "
+  except OSError:
+    result = "[not found]"
 
 proc virtualenv*(): string =
   let env = getEnv("VIRTUAL_ENV")
   result = extractFilename(env) & " "
   if env.len == 0:
     result = ""
-
+ 
 proc gitBranch*(): string =
   let (o, err) = execCmdEx("git status")
   if err == 0:
@@ -113,21 +117,20 @@ proc gitStatus*(dirty, clean: string): string =
   else:
     result = ""
 
-template user*(): string =
-  $getpwuid(getuid()).pw_name
+proc user*(): string =
+  result = $getpwuid(getuid()).pw_name
 
-proc host*(): string {.inline.} =
+proc host*(): string =
   const size = 64
   var s = cstring(newString(size))
   result = $s.gethostname(size)
+  
+proc uidsymbol*(root, user: string): string =
+  result = if getuid() == 0: root
+           else: user
 
-template uidsymbol*(root, user: string): string =
-  if unlikely(getuid() == 0): root else: user
-
-func returnCondition*(ok: string, ng: string, delimiter = "."): string {.inline.} =
+proc returnCondition*(ok: string, ng: string, delimiter = "."): string =
   result = fmt"%(?{delimiter}{ok}{delimiter}{ng})"
 
-template returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string =
-  returnCondition(ok = ok(), ng = ng(), delimiter = delimiter)
-
-func echo*(s: cstring) {.importc: "printf", header: "<stdio.h>".} ## Fast pure C echo,uses cstring.
+proc returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string =
+  result = returnCondition(ok = ok(), ng = ng(), delimiter = delimiter)
