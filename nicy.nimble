@@ -1,6 +1,6 @@
 # Package
 
-version       = "2.4.2"
+version       = "2.5.0"
 author        = "Anirudh"
 description   = "A nice and icy ZSH prompt in Nim"
 license       = "MIT"
