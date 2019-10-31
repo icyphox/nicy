@@ -171,7 +171,7 @@ if the return code is `0` then `ok` else `ng`.
 Returns result of `ok` proc or `ng` proc.
 if the return code is `0` then this proc calls `ok` proc else this proc calls `ng` proc.
 
-**`echoc(*(s: cstring) {.importc: "printf", header: "<stdio.h>".})`**  
+**`echoc*(s: cstring) {.importc: "printf", header: "<stdio.h>".}`**  
 Fast, pure C alternative to `echo`. Uses `cstring`.
 
 ## Contributing
