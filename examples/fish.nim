@@ -3,8 +3,7 @@
 import nicy, strformat
 
 let
-  prompt = color("> ", "green")
+  prompt = color("> ", green)
   tilde = tilde(getCwd())
 
 echo fmt"{tilde}{prompt}"
-

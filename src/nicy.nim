@@ -7,12 +7,12 @@ export
 
 when isMainModule:
   let
-    prompt = color("› ", "magenta")
+    prompt = color("› ", magenta)
     nl = "\n"
-    gitBranch = color(gitBranch(), "yellow")
-    cwd = color(tilde(getCwd()), "cyan")
-    dirty = color("×", "red")
-    clean = color("•", "green")
+    gitBranch = color(gitBranch(), yellow)
+    cwd = color(tilde(getCwd()), cyan)
+    dirty = color("×", red)
+    clean = color("•", green)
   let git = gitBranch & gitStatus(dirty, clean)
 
   # the prompt
