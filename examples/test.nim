@@ -1,10 +1,7 @@
-import 
-    nicy,
-    strformat
+import nicy, strformat
 
 let
-    prompt = uidsymbol("#", "$")
-    nl = "\n"
+  prompt = uidsymbol("#", "$")
+  nl = "\n"
 
 echo fmt"{nl}{prompt}"
-

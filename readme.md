@@ -56,10 +56,10 @@ Once you’re done, compile it and add a similar function to your `.zshrc` as ab
 import nicy, strformat
 
 let
-  user = color(user(), "green")
-  host = color(host(), "red")
-  prompt = color("$ ", "cyan")
-  at = color("@", "yellow")
+  user = color(user(), green)
+  host = color(host(), red)
+  prompt = color("$ ", cyan)
+  at = color("@", yellow)
 
 echo fmt"{user}{at}{host} {prompt}"
 ```
@@ -70,7 +70,7 @@ echo fmt"{user}{at}{host} {prompt}"
 import nicy, strformat
 
 let
-  prompt = color("> ", "green")
+  prompt = color("> ", green)
   tilde = tilde(getCwd())
 
 echo fmt"{tilde}{prompt}"
@@ -82,9 +82,9 @@ echo fmt"{tilde}{prompt}"
 import nicy, strformat
 
 let
-  prompt = color("❯ ", "magenta")
-  tilde = color(tilde(getCwd()), "cyan")
-  git = color(gitBranch() & gitStatus("*", ""), "red")
+  prompt = color("❯ ", magenta)
+  tilde = color(tilde(getCwd()), cyan)
+  git = color(gitBranch() & gitStatus("*", ""), red)
   nl = "\n"
 
 echo fmt"{tilde}{git}{nl}{prompt}"
@@ -97,8 +97,8 @@ import nicy, strformat
 
 let
   prompt = returnCondition(ok = "👍", ng = "👎") & " "
-  tilde = color(tilde(getCwd()), "cyan")
-  git = color(gitBranch() & gitStatus("*", ""), "red")
+  tilde = color(tilde(getCwd()), cyan)
+  git = color(gitBranch() & gitStatus("*", ""), red)
   nl = "\n"
 
 echo fmt"{tilde}{git}{nl}{prompt}"
@@ -112,9 +112,9 @@ echo fmt"{tilde}{git}{nl}{prompt}"
 Returns the given string wrapped in zsh zero-width codes. Useful for prompt alignment and cursor positioning.  
 All procs below return strings wrapped by this.
 
-**`foreground(s, color: string): string`**  
+**`foreground(s: string, color: Color): string`**  
 Returns the given string, colorized.  
-Possible colors are `"black"`, `"red"`, `"green"` `"blue"`, `"cyan"`, `"yellow"`, `"magenta"`, `"white"`.
+Possible colors are `black`, `red`, `green`, `blue`, `cyan`, `yellow`, `magenta`, `white`.
 
 **`background(s, color: string): string`**  
 Returns the given string with its background colorized.  
@@ -127,7 +127,7 @@ Makes the given string bold.
 Adds an underline to the given string.
 
 **`italics(s: string): string`**  
-Italicizes the given text. **May not work on all terminals!**
+Italicizes the given text. **May not work in some terminal emulators!**
 
 **`reverse(s: string): string`**  
 Swaps the foreground/background colors for the given string.
@@ -135,7 +135,7 @@ Swaps the foreground/background colors for the given string.
 **`reset(s: string): string`**  
 Resets all attributes. Useful for disabling all styling.
 
-**`color(s: string, fg: string = "", bg: string = "",  b: bool = false, u: bool = false, r = false): string`**  
+**`color*(s: string, fg, bg = Color.none, b, u, r = false): string`**  
 Convenience proc that sets all attributes to a given string.  
 `fg`: foreground, `bg`: background, `b`: bold, `u`: underline, `r`: reverse
 
@@ -164,15 +164,11 @@ Returns the current username.
 Returns the current hostname.
 
 **`returnCondition*(ok: string, ng: string, delimiter = "."): string`**  
-Returns `ok` string or `ng` string.
-if the return code is `0` then `ok` else `ng`.
+If the return code is `0` then returns `ok` string, otherwise `ng`.
 
 **`returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string`**  
 Returns result of `ok` proc or `ng` proc.
-if the return code is `0` then this proc calls `ok` proc else this proc calls `ng` proc.
-
-**`echoc*(s: cstring) {.importc: "printf", header: "<stdio.h>".}`**  
-Fast, pure C alternative to `echo`. Uses `cstring`.
+If the return code is `0` then this proc calls `ok` proc, otherwise calls `ng` proc.
 
 ## Contributing
 Bad code? New feature in mind? Open an issue. Better still, learn [Nim](https://nim-lang.org/documentation.html) and shoot a PR :sparkles:

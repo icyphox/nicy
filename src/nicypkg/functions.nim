@@ -2,68 +2,58 @@ import
   os,
   osproc,
   strformat,
-  tables,
   strutils,
   posix,
   terminal
 
-func zeroWidth*(s: string): string {.inline.} =
-  return fmt"%{{{s}%}}"
+type
+  Color* = enum
+    none = "",
+    black = "\x1b[30m",
+    red = "\x1b[31m",
+    green = "\x1b[32m",
+    yellow = "\x1b[33m",
+    blue = "\x1b[34m",
+    magenta = "\x1b[35m",
+    cyan = "\x1b[36m",
+    white = "\x1b[37m",
 
-proc foreground*(s, color: string): string =
-  const colors = {
-    "black":"\x1b[30m",
-    "red": "\x1b[31m",
-    "green": "\x1b[32m",
-    "yellow": "\x1b[33m",
-    "blue": "\x1b[34m",
-    "magenta": "\x1b[35m",
-    "cyan": "\x1b[36m",
-    "white": "\x1b[37m",
-  }.toTable
-  return fmt"{zeroWidth(colors[color])}{s}"
+func zeroWidth*(s: string): string = 
+  result = fmt"%{{{s}%}}"
 
-proc background*(s, color: string): string =
-  const colors = {
-    "black":"\x1b[40m",
-    "red": "\x1b[41m",
-    "green": "\x1b[42m",
-    "yellow": "\x1b[43m",
-    "blue": "\x1b[44m",
-    "magenta": "\x1b[45m",
-    "cyan": "\x1b[46m",
-    "white": "\x1b[47m",
-  }.toTable
-  return fmt"{zeroWidth(colors[color])}{s}"
+func foreground*(s: string, color: Color): string =
+  result = fmt"{zeroWidth($color)}{s}"
 
-func bold*(s: string): string {.inline.} =
+func background*(s: string, color: Color): string =
+  result = fmt"{zeroWidth($color)}{s}"
+
+func bold*(s: string): string = 
   const b = "\x1b[1m"
-  return fmt"{zeroWidth(b)}{s}"
+  result = fmt"{zeroWidth(b)}{s}"
 
-func underline*(s: string): string {.inline.} =
+func underline*(s: string): string = 
   const u = "\x1b[4m"
-  return fmt"{zeroWidth(u)}{s}"
+  result = fmt"{zeroWidth(u)}{s}"
 
-func italics*(s: string): string {.inline.} =
+func italics*(s: string): string = 
   const i = "\x1b[3m"
-  return fmt"{zeroWidth(i)}{s}"
+  result = fmt"{zeroWidth(i)}{s}"
 
-func reverse*(s: string): string {.inline.} =
+func reverse*(s: string): string = 
   const rev = "\x1b[7m"
-  return fmt"{zeroWidth(rev)}{s}"
+  result = fmt"{zeroWidth(rev)}{s}"
 
-func reset*(s: string): string {.inline.} =
+func reset*(s: string): string = 
   const res = "\x1b[0m"
-  return fmt"{s}{zeroWidth(res)}"
+  result = fmt"{s}{zeroWidth(res)}"
 
-proc color*(s: string, fg: string = "", bg: string = "",
-  b: bool = false, u: bool = false, r = false): string =
-  result = s
+func color*(s: string, fg, bg = Color.none, b, u, r = false): string =
   if s.len == 0:
-    return s
-  if fg.len != 0:
+    return
+  result = s
+  if fg != Color.none:
     result = foreground(result, fg)
-  if bg.len != 0:
+  if bg != Color.none:
     result = background(result, bg)
   if b:
     result = bold(result)
@@ -73,8 +63,8 @@ proc color*(s: string, fg: string = "", bg: string = "",
     result = reverse(result)
   result = reset(result)
 
-proc horizontalRule*(c: char = '-'): string =
-  for _ in 1 || terminalWidth(): # Parallel for loop, unordered iter but faster.
+proc horizontalRule*(c = '-'): string =
+  for _ in 1 .. terminalWidth():
     result &= c
   result &= zeroWidth("\n")
 
@@ -86,8 +76,11 @@ proc tilde*(path: string): string =
   else:
     result = path
 
-template getCwd*(): string =
-  try: getCurrentDir() & " " except OSError: "[not found]"
+proc getCwd*(): string =
+  result = try: 
+    getCurrentDir() & " " 
+  except OSError: 
+    "[not found]"
 
 proc virtualenv*(): string =
   let env = getEnv("VIRTUAL_ENV")
@@ -99,35 +92,33 @@ proc gitBranch*(): string =
   let (o, err) = execCmdEx("git status")
   if err == 0:
     let firstLine = o.split("\n")[0].split(" ")
-    result = firstLine[firstLine.len - 1] & " "
+    result = firstLine[^1] & " "
   else:
     result = ""
 
 proc gitStatus*(dirty, clean: string): string =
   let (o, err) = execCmdEx("git status --porcelain")
-  if err == 0:
+  result = if err == 0:
     if o.len != 0:
-      result = dirty
+      dirty
     else:
-      result = clean
+      clean
   else:
-    result = ""
+    ""
 
-template user*(): string =
-  $getpwuid(getuid()).pw_name
+proc user*(): string =
+  result = $getpwuid(getuid()).pw_name
 
-proc host*(): string {.inline.} =
-  const size = 64
-  var s = cstring(newString(size))
-  result = $s.gethostname(size)
+proc host*(): string =
+  const size = 64 
+  result = newString(size)
+  discard gethostname(cstring(result), size)
 
-template uidsymbol*(root, user: string): string =
-  if unlikely(getuid() == 0): root else: user
+proc uidsymbol*(root, user: string): string =
+  result = if getuid() == 0: root else: user
 
-func returnCondition*(ok: string, ng: string, delimiter = "."): string {.inline.} =
+func returnCondition*(ok: string, ng: string, delimiter = "."): string = 
   result = fmt"%(?{delimiter}{ok}{delimiter}{ng})"
 
-template returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string =
-  returnCondition(ok = ok(), ng = ng(), delimiter = delimiter)
-
-func echoc*(s: cstring) {.importc: "printf", header: "<stdio.h>".} ## Fast pure C echo,uses cstring.
+func returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string =
+  result = returnCondition(ok(), ng(), delimiter)
