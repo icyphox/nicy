@@ -8,24 +8,26 @@ import
 
 type
   Color* = enum
-    none = "",
-    black = "\x1b[30m",
-    red = "\x1b[31m",
-    green = "\x1b[32m",
-    yellow = "\x1b[33m",
-    blue = "\x1b[34m",
-    magenta = "\x1b[35m",
-    cyan = "\x1b[36m",
-    white = "\x1b[37m",
+    none = -1,
+    black = 0,
+    red = 1,
+    green = 2,
+    yellow = 3,
+    blue = 4,
+    magenta = 5,
+    cyan = 6,
+    white = 7,
 
 func zeroWidth*(s: string): string = 
   result = fmt"%{{{s}%}}"
 
 func foreground*(s: string, color: Color): string =
-  result = fmt"{zeroWidth($color)}{s}"
+  let c = "\x1b[" & $(ord(color)+30) & "m"
+  result = fmt"{zeroWidth($c)}{s}"
 
 func background*(s: string, color: Color): string =
-  result = fmt"{zeroWidth($color)}{s}"
+  let c = "\x1b[" & $(ord(color)+40) & "m"
+  result = fmt"{zeroWidth($c)}{s}"
 
 func bold*(s: string): string = 
   const b = "\x1b[1m"
