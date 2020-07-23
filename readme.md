@@ -2,7 +2,7 @@
     <img src="https://x.icyphox.sh/5DyAD.png" width="280">                            
 </h1>
 
-> A nice and icy ZSH prompt in Nim
+> A nice and icy ZSH and BASH prompt in Nim
 
 [![Build Status](https://travis-ci.org/icyphox/nicy.svg?branch=master)](https://travis-ci.org/icyphox/nicy)
 
@@ -16,6 +16,7 @@ I’ve always wanted to minimize my reliance on frameworks like [oh-my-zsh](http
 - Fast (in theory, since Nim compiles to C)
 - Pretty defaults.
 - Plugin-like system for prompt customization, in case you didn’t like the pretty defaults.
+- Support both ZSH and BASH.
 - Fun, I guess.
 
 ## Installation
@@ -39,6 +40,14 @@ _nicy_prompt() {
 add-zsh-hook precmd _nicy_prompt
 ```
 Make sure you disable all other themes.
+
+Nicy supports BASH also, and you could simply add it to your `~/.bashrc` or `~/.bash_profile`:
+```bash
+function nicy_prompt_command {
+    PS1=$(/path/to/nicy)
+}
+PROMPT_COMMAND="nicy_prompt_command"
+```
 
 ## Configuration
 If you want to configure `nicy` as it is, you’ll have to edit the `src/nicy.nim` file and recompile. Messy, I know.
@@ -169,6 +178,11 @@ If the return code is `0` then returns `ok` string, otherwise `ng`.
 **`returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string`**  
 Returns result of `ok` proc or `ng` proc.
 If the return code is `0` then this proc calls `ok` proc, otherwise calls `ng` proc.
+
+**`shellName*: string`**
+Contains the name of shell in which your prompt progoram is running.
+Currently it may be `zsh` or `bash`. 
+You can specify it during compilation using the switch `-d:zsh` or `-d:bash`, or you can let the program detect it automatically, which may slow it down by a few milliseconds.
 
 ## Contributing
 Bad code? New feature in mind? Open an issue. Better still, learn [Nim](https://nim-lang.org/documentation.html) and shoot a PR :sparkles:

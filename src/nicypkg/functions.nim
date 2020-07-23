@@ -18,38 +18,65 @@ type
     cyan = 6,
     white = 7,
 
-func zeroWidth*(s: string): string = 
-  result = fmt"%{{{s}%}}"
+when defined(bash): # shell switch during compilation using "-d:bash"
+  proc isBash(): bool =
+    result = true
+elif defined(zsh): # or "-d:zsh"
+  proc isBash(): bool =
+    result = false
+else: # or detect shell automatic
+  proc isBash(): bool =
+    result = false
+    let ppid = getppid()
+    let (o, err) = execCmdEx(fmt"ps -p {ppid} -oargs=")
+    if err == 0:
+      let name = o.strip()
+      if name.endswith("bash"):
+        result = true
 
-func foreground*(s: string, color: Color): string =
+let
+  shellName* = # make sure the shell detection runs once only
+    if isBash():
+      "bash"
+    else:
+      "zsh" # default
+
+proc zeroWidth*(s: string): string = 
+  if shellName == "bash":
+    return fmt"\[{s}\]"
+  else:
+    # zsh, default
+    return fmt"%{{{s}%}}"
+
+proc foreground*(s: string, color: Color): string =
   let c = "\x1b[" & $(ord(color)+30) & "m"
   result = fmt"{zeroWidth($c)}{s}"
 
-func background*(s: string, color: Color): string =
+proc background*(s: string, color: Color): string =
   let c = "\x1b[" & $(ord(color)+40) & "m"
   result = fmt"{zeroWidth($c)}{s}"
 
-func bold*(s: string): string = 
+proc bold*(s: string): string = 
   const b = "\x1b[1m"
   result = fmt"{zeroWidth(b)}{s}"
 
-func underline*(s: string): string = 
+proc underline*(s: string): string = 
   const u = "\x1b[4m"
   result = fmt"{zeroWidth(u)}{s}"
 
-func italics*(s: string): string = 
+proc italics*(s: string): string = 
   const i = "\x1b[3m"
   result = fmt"{zeroWidth(i)}{s}"
 
-func reverse*(s: string): string = 
+proc reverse*(s: string): string = 
   const rev = "\x1b[7m"
   result = fmt"{zeroWidth(rev)}{s}"
 
-func reset*(s: string): string = 
+proc reset*(s: string): string = 
   const res = "\x1b[0m"
   result = fmt"{s}{zeroWidth(res)}"
 
-func color*(s: string, fg, bg = Color.none, b, u, r = false): string =
+proc color*(s: string, fg, bg = Color.none, b, u, r = false): string =
   if s.len == 0:
     return
   result = s
@@ -119,8 +146,8 @@ proc host*(): string =
 proc uidsymbol*(root, user: string): string =
   result = if getuid() == 0: root else: user
 
-func returnCondition*(ok: string, ng: string, delimiter = "."): string = 
+proc returnCondition*(ok: string, ng: string, delimiter = "."): string = 
   result = fmt"%(?{delimiter}{ok}{delimiter}{ng})"
 
-func returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string =
+proc returnCondition*(ok: proc(): string, ng: proc(): string, delimiter = "."): string =
   result = returnCondition(ok(), ng(), delimiter)
