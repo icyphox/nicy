@@ -115,6 +115,11 @@ echo fmt"{tilde}{git}{nl}{prompt}"
 # 👍 
 ```
 
+If you like to know more details about git status, you may want to try the following powerful example which is including the number of untracked, modified, staged, conflicted and the number of commits your local branch is ahead, behind, etc:
+```
+nim c -d:release examples/power.nim
+```
+
 ### API
 
 **`zeroWidth(s: string): string`**  
@@ -183,6 +188,20 @@ If the return code is `0` then this proc calls `ok` proc, otherwise calls `ng` p
 Contains the name of shell in which your prompt progoram is running.
 Currently it may be `zsh` or `bash`. 
 You can specify it during compilation using the switch `-d:zsh` or `-d:bash`, or you can let the program detect it automatically, which may slow it down by a few milliseconds.
+
+#### GitStats API
+
+**`newGitStats*(): GitStats`**
+Returns a `GitStats` object which is including the name of the local branch, the name of remote reference, numbers of commits your local branch is ahead or behind remote ref, numbers of untracked, modified, staged, conflicted, and the number of stashed changes. 
+
+**`branch*(gs: GitStats, detachedPrefix = "", postfix = " "): string`**
+Returns the current git branch name.
+
+**`status*(gs: GitStats, ahead, behind, untracked, changed, staged, conflicted, stash: string, separator, postfix = " "): string`**
+Returns the git status string.
+
+**`dirty*(gs: GitStats): bool`**
+Returns whether the current directory has been changed.
 
 ## Contributing
 Bad code? New feature in mind? Open an issue. Better still, learn [Nim](https://nim-lang.org/documentation.html) and shoot a PR :sparkles:
