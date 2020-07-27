@@ -3,5 +3,6 @@ examples/fish
 examples/pure
 examples/simple
 examples/test
+examples/power
 *.html
 *.css
