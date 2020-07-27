@@ -2,7 +2,7 @@
     <img src="https://x.icyphox.sh/5DyAD.png" width="280">                            
 </h1>
 
-> A nice and icy ZSH and BASH prompt in Nim
+> A nice and icy zsh and bash prompt in Nim
 
 [![Build Status](https://travis-ci.org/icyphox/nicy.svg?branch=master)](https://travis-ci.org/icyphox/nicy)
 
@@ -16,7 +16,7 @@ I’ve always wanted to minimize my reliance on frameworks like [oh-my-zsh](http
 - Fast (in theory, since Nim compiles to C)
 - Pretty defaults.
 - Plugin-like system for prompt customization, in case you didn’t like the pretty defaults.
-- Support both ZSH and BASH.
+- Support both zsh and bash.
 - Fun, I guess.
 
 ## Installation
@@ -191,16 +191,16 @@ You can specify it during compilation using the switch `-d:zsh` or `-d:bash`, or
 
 #### GitStats API
 
-**`newGitStats*(): GitStats`**
-Returns a `GitStats` object which is including the name of the local branch, the name of remote reference, numbers of commits your local branch is ahead or behind remote ref, numbers of untracked, modified, staged, conflicted, and the number of stashed changes. 
+**`newGitStats*(): GitStats`**  
+Returns a `GitStats` object which contains the name of the local branch, the name of remote reference, number of commits your local branch is ahead or behind remote ref, number of untracked, modified, staged, conflicted, and the number of stashed changes. 
 
-**`branch*(gs: GitStats, detachedPrefix = "", postfix = " "): string`**
+**`branch*(gs: GitStats, detachedPrefix = "", postfix = " "): string`**  
 Returns the current git branch name.
 
-**`status*(gs: GitStats, ahead, behind, untracked, changed, staged, conflicted, stash: string, separator, postfix = " "): string`**
+**`status*(gs: GitStats, ahead, behind, untracked, changed, staged, conflicted, stash: string, separator, postfix = " "): string`**  
 Returns the git status string.
 
-**`dirty*(gs: GitStats): bool`**
+**`dirty*(gs: GitStats): bool`**  
 Returns whether the current directory has been changed.
 
 ## Contributing
