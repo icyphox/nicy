@@ -1,0 +1,57 @@
+name: website
+
+on: [push]
+#on:
+#  push:
+#    tags:
+#      - 'v*.*.*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Set output
+        id: vars
+        run: |
+          echo "::set-output name=tag::${GITHUB_REF:10}"
+          echo "::set-output name=sha::$(git rev-parse HEAD)"
+      - name: Cache choosenim
+        id: cache-choosenim
+        uses: actions/cache@v1
+        with:
+          path: ~/.choosenim
+          key: ${{ runner.os }}-choosenim-stable
+      - name: Cache nimble
+        id: cache-nimble
+        uses: actions/cache@v1
+        with:
+          path: ~/.nimble
+          key: ${{ runner.os }}-nimble-stable
+      - uses: jiro4989/setup-nim-action@v1.0.2
+        with:
+          nim-version: 'stable'
+      - name: Build and test
+        run: |
+          nimble build -Y
+          #nimble test -Y
+      - name: Build doc
+        env:
+          RELEASE_COMMIT: ${{ steps.vars.outputs.sha }}
+        run: |
+          nimble doc --git.url:https://github.com/$GITHUB_REPOSITORY --git.commit:$RELEASE_COMMIT src/nicy.nim
+          nimble doc --git.url:https://github.com/$GITHUB_REPOSITORY --git.commit:$RELEASE_COMMIT src/nicypkg/functions.nim
+          # Deploying documentation of the latest version.
+          mkdir -p ./public
+          mv nicy.html functions.html nimdoc.out.css ./public/
+          cd ./public/
+          ln -s ./nicy.html index.html
+      - name: Deploy
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v1.3.0
+        with:
+          target_branch: gh-pages
+          build_dir: ./public
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
