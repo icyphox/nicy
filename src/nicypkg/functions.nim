@@ -57,11 +57,12 @@ let
       "zsh"    # default
 
 proc zeroWidth*(s: string): string =
-  if shellName == "bash":
-    return fmt"\[{s}\]"
-  else:
-    # zsh, default
-    return fmt"%{{{s}%}}"
+  return s
+  #if shellName == "bash":
+  #  return fmt"\[{s}\]"
+  #else:
+  #  # zsh, default
+  #  return fmt"%{{{s}%}}"
 
 proc foreground*(s: string, color: Color): string =
   let c = "\x1b[" & $(ord(color)+30) & "m"
