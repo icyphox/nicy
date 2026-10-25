@@ -27,6 +27,10 @@ altogether. It may cause conflicts.
 $ nimble install nicy
 ```
 
+Git information is read by spawning the `git` binary — a single cached
+`git status --porcelain=v2` call per prompt — so you only need `git`
+installed; no extra libraries or headers are required.
+
 Don’t know what that is? New to Nim? Check out the Nim [docs](https://nim-lang.org/documentation.html). `nimble` is packaged with Nim by default.  
 
 ## Quick start

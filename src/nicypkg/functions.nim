@@ -1,11 +1,9 @@
 import
-  nre,
   os,
   osproc,
   posix,
   strformat,
   strutils,
-  tables,
   terminal
 
 type
@@ -33,35 +31,52 @@ type
     staged*: int
     stash*: int
 
+proc parentComm(): string =
+  ## Name of the parent process' executable, e.g. "bash" or "zsh".
+  ## Uses /proc when available (no subprocess), ps otherwise.
+  when defined(linux):
+    try:
+      return readFile("/proc/" & $getppid() & "/comm").strip()
+    except OSError, IOError:
+      discard
+  let (o, err) = execCmdEx("ps -p " & $getppid() & " -o comm=")
+  if err == 0:
+    return o.strip()
+  ""
+
 when defined(bash): # shell switch during compilation using "-d:bash"
-  proc isBash(): bool =
-    result = true
+  proc detectShell(): string =
+    "bash"
 elif defined(zsh): # or "-d:zsh"
-  proc isBash(): bool =
-    result = false
-else: # or detect shell automatic
-  proc isBash(): bool =
-    result = false
-    let ppid = getppid()
-    let (o, err) = execCmdEx(fmt"ps -p {ppid} -oargs=")
-    if err == 0:
-      let name = o.strip()
-      if name.endswith("bash"):
-        result = true
+  proc detectShell(): string =
+    "zsh"
+else: # or detect shell automatically
+  proc detectShell(): string =
+    # Match the executable name only, not its arguments: shells are often
+    # launched as "bash -i" (tmux, terminal emulators, pty wrappers), which
+    # the old args-based check missed, defaulting to zsh escapes.
+    let name = parentComm()
+    if name == "bash" or name.endsWith("/bash"):
+      "bash"
+    elif name == "zsh" or name.endsWith("/zsh"):
+      "zsh"
+    else:
+      ""    # unknown: emit no zero-width wrappers at all
 
 let
   shellName* = # make sure the shell detection runs once only
-    if isBash():
-      "bash"
-    else:
-      "zsh"    # default
+    detectShell()
 
 proc zeroWidth*(s: string): string =
-  if shellName == "bash":
-    return fmt"\[{s}\]"
+  ## Wrap `s` in the shell's zero-width escape so invisible sequences
+  ## don't confuse the shell's prompt cursor math.
+  case shellName
+  of "bash":
+    fmt"\[{s}\]"
+  of "zsh":
+    fmt"%{{{s}%}}"
   else:
-    # zsh, default
-    return fmt"%{{{s}%}}"
+    s
 
 proc foreground*(s: string, color: Color): string =
   let c = "\x1b[" & $(ord(color)+30) & "m"
@@ -114,9 +129,11 @@ proc horizontalRule*(c = '-'): string =
 
 proc tilde*(path: string): string =
   # donated by @misterbianco
-  let home = getHomeDir()
-  if path.startsWith(home):
-    result = "~/" & path.split(home)[1]
+  let home = getHomeDir()          # trailing slash: "/home/luis/"
+  if path == home[0 .. ^2]:
+    result = "~"
+  elif path.startsWith(home):
+    result = "~/" & path[home.len .. ^1]
   else:
     result = path
 
@@ -132,23 +149,168 @@ proc virtualenv*(): string =
   if env.len == 0:
     result = ""
 
-proc gitBranch*(): string =
-  let (o, err) = execCmdEx("git status")
-  if err == 0:
-    let firstLine = o.split("\n")[0].split(" ")
-    result = firstLine[^1] & " "
+# ---------------------------------------------------------------------------
+# Git — shells out to the `git` binary instead of linking libgit2. A single
+# cached `git status --porcelain=v2 --branch` call per prompt provides the
+# branch, upstream, ahead/behind and the status counts; `git describe` is
+# only spawned for detached HEADs and exact tags, and the stash count is
+# read straight from the stash reflog file.
+# ---------------------------------------------------------------------------
+
+var
+  statusOut: string          # cached porcelain output, "" outside a repo
+  statusFetched = false
+  statsCache: GitStats
+  statsParsed = false
+
+proc gitStatusOut(): string =
+  ## `git status --porcelain=v2 --branch` for the current directory,
+  ## fetched once per prompt; empty outside a repository or without git.
+  if not statusFetched:
+    statusFetched = true
+    try:
+      # --no-optional-locks: a prompt must not fight the user's own git
+      # commands over the index lock
+      let (o, code) = execCmdEx(
+          "git --no-optional-locks status --porcelain=v2 --branch 2>/dev/null")
+      if code == 0:
+        statusOut = o
+    except OSError:
+      discard    # git not installed: same as being outside a repository
+  statusOut
+
+proc gitDescribe(args: string): string =
+  ## Output of `git describe <args>`, stripped; "" when git refuses (e.g.
+  ## HEAD is not on a tag with --exact-match).
+  try:
+    let (o, code) = execCmdEx("git describe " & args & " 2>/dev/null")
+    if code == 0:
+      result = o.strip()
+  except OSError:
+    discard
+
+proc gitDirPath(): string =
+  ## The .git directory of the repository containing the current
+  ## directory, honoring GIT_DIR and ".git" pointer files (worktrees,
+  ## submodules); "" when there is no repository.
+  result = getEnv("GIT_DIR")
+  if result.len > 0:
+    return
+  var dir = ""
+  try:
+    dir = getCurrentDir()
+  except OSError:
+    return
+  while true:
+    let candidate = dir / ".git"
+    if dirExists(candidate):
+      return candidate
+    if fileExists(candidate):
+      try:
+        for line in readFile(candidate).splitLines():
+          if line.startsWith("gitdir: "):
+            let path = line[8..^1].strip()
+            return if path.isAbsolute: path else: dir / path
+      except OSError, IOError:
+        discard
+      return ""
+    let parent = dir.parentDir()
+    if parent.len == 0 or parent == dir:
+      return ""
+    dir = parent
+
+proc stashCount(): int =
+  ## Number of stashes: one reflog entry per stash on refs/stash, which is
+  ## exactly what `git stash list` reads.
+  let gitdir = gitDirPath()
+  if gitdir.len == 0:
+    return
+  try:
+    for line in readFile(gitdir / "logs" / "refs" / "stash").splitLines():
+      if line.strip().len > 0:
+        inc result
+  except OSError, IOError:
+    discard
+
+proc parseStatus(outp: string): GitStats =
+  ## Fill a GitStats from `git status --porcelain=v2 --branch` output.
+  var head = ""
+  var detached = false
+  var unborn = false
+  for line in outp.splitLines():
+    if line.startsWith("# branch.oid "):
+      if line.endsWith("(initial)"):
+        unborn = true
+    elif line.startsWith("# branch.head "):
+      head = line[14..^1]
+      if head == "(detached)":
+        detached = true
+        head = ""
+    elif line.startsWith("# branch.upstream "):
+      result.remoteRef = line[17..^1]
+    elif line.startsWith("# branch.ab "):
+      let f = line.splitWhitespace()
+      if f.len == 4:
+        try:
+          result.ahead = parseInt(f[2][1..^1])
+          result.behind = parseInt(f[3][1..^1])
+        except ValueError:
+          discard
+    elif line.startsWith("1 ") or line.startsWith("2 "):
+      let xy = line.splitWhitespace()[1]
+      if xy.len == 2:
+        if xy[0] notin {'.', ' '}: inc result.staged
+        if xy[1] notin {'.', ' '}: inc result.changed
+    elif line.startsWith("u "):
+      inc result.conflicted
+    elif line.startsWith("? "):
+      inc result.untracked
+  if detached:
+    let described = gitDescribe("--tags --always")
+    if described.len > 0:
+      result.branchName = described
+      result.detached = true
+    else:
+      result.branchName = "Big Bang"
+  elif unborn:
+    result.branchName = "Big Bang"   # unborn HEAD
   else:
-    result = ""
+    result.branchName = head
+    result.localRef = head
+
+proc gitStats(): GitStats =
+  ## Parsed git status of the current directory, computed once per prompt.
+  if not statsParsed:
+    statsParsed = true
+    let outp = gitStatusOut()
+    if outp.len > 0:
+      statsCache = parseStatus(outp)
+      statsCache.stash = stashCount()
+  statsCache
+
+proc gitBranch*(): string =
+  ## Name of the current branch (or the describe of a detached HEAD),
+  ## with a trailing space; empty outside a repository.
+  let gs = gitStats()
+  if gs.branchName.len == 0 or (not gs.detached and gs.localRef.len == 0):
+    return
+  result = gs.branchName & " "
 
 proc gitStatus*(dirty, clean: string): string =
-  let (o, err) = execCmdEx("git status --porcelain")
-  result = if err == 0:
-    if o.len != 0:
-      dirty
-    else:
-      clean
-  else:
-    ""
+  ## `dirty` if the worktree has any changes (including untracked files),
+  ## else `clean`; empty outside a repository.
+  if gitStatusOut().len == 0:
+    return
+  let gs = gitStats()
+  result = if (gs.untracked + gs.changed + gs.staged +
+      gs.conflicted) > 0: dirty else: clean
+
+proc gitTag*(): string =
+  ## The tag pointing exactly at HEAD; empty when HEAD is not on a tag
+  ## or outside a repository.
+  if gitStatusOut().len == 0:
+    return
+  result = gitDescribe("--tags --exact-match")
 
 proc user*(): string =
   result = $getpwuid(getuid()).pw_name
@@ -168,53 +330,9 @@ proc returnCondition*(ok: proc(): string, ng: proc(): string,
     delimiter = "."): string =
   result = returnCondition(ok(), ng(), delimiter)
 
-proc getGitDetachedBranch(): string =
-  let (o, err) = execCmdEx("git describe --tags --always")
-  if err == 0:
-    result = o.strip()
-
-proc getStashCount(): int =
-  let (o, err) = execCmdEx("git stash list")
-  if err == 0:
-    result = o.count("\n")
-
 proc newGitStats*(): GitStats =
-  let (o, err) = execCmdEx("git status --porcelain -b")
-  if err == 0:
-    let pattern = re"^## (?P<local>\S+?)(\.{3}(?P<remote>\S+?)( \[(ahead (?P<ahead>\d+)(, )?)?(behind (?P<behind>\d+))?\])?)?$"
-    let lines = o.split("\n")
-
-    let firstLine = lines[0]
-    let matched = firstLine.match(pattern)
-    if matched.isSome:
-      let status = matched.get.captures.toTable
-      result.localRef = status["local"]
-      result.remoteRef = status.getOrDefault("remote", "")
-      result.ahead = parseInt(status.getOrDefault("ahead", "0"))
-      result.behind = parseInt(status.getOrDefault("behind", "0"))
-      result.branchName = status["local"]
-    else:
-      result.branchName = getGitDetachedBranch()
-      if result.branchName.len > 0:
-        result.detached = true
-      else:
-        result.branchName = "Big Bang"
-        result.detached = false
-
-    for line in lines[1..^1]:
-      if line.len < 2:
-        continue
-      let code = line[0..<2]
-      if code == "??":
-        result.untracked.inc
-      elif code in @["DD", "AU", "UD", "UA", "DU", "AA", "UU"]:
-        result.conflicted.inc
-      else:
-        if code[1] != ' ':
-          result.changed.inc
-        if code[0] != ' ':
-          result.staged.inc
-    result.stash = getStashCount()
+  ## All git stats for the prompt in a single pass.
+  gitStats()
 
 proc dirty*(gs: GitStats): bool =
   (gs.untracked + gs.changed + gs.staged + gs.conflicted) > 1
